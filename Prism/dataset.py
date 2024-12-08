@@ -141,6 +141,73 @@ class Dataset(torch.utils.data.Dataset):
     def __del__(self) -> None:
         self.clean()
 
+class ArrayDataset(Dataset):
+    def __init__(self, *arrays, getitem_size: int = 1) -> None:
+        super().__init__()#getitem_size=getitem_size)
+        self.getitem_size = getitem_size
+        self.sizes = None
+        self.size = None
+        self.view_idx = None
+        self.shuffle_idx = None
+        self.arrays = arrays
+
+    @property
+    def arrays(self):
+        return self._arrays
+
+    @arrays.setter
+    def arrays(self, arrays) -> None:
+        self.sizes = [array.shape[0] for array in arrays]
+        if min(self.sizes) == 0:
+            raise ValueError("Empty array is not allowed!")
+        self.size = max(self.sizes)
+        self.view_idx = [np.arange(s) for s in self.sizes]
+        self.shuffle_idx = self.view_idx
+        self._arrays = arrays
+
+    def __len__(self) -> int:
+        return ceil(self.size / self.getitem_size)
+
+    def __getitem__(self, index: int) -> List[torch.Tensor]:
+        index = np.arange(index * self.getitem_size,min((index + 1) * self.getitem_size, self.size))
+        return [
+            torch.as_tensor(a[self.shuffle_idx[i][np.mod(index, self.sizes[i])]].toarray())
+            if scipy.sparse.issparse(a) or isinstance(a, SparseDataset)
+            else torch.as_tensor(a[self.shuffle_idx[i][np.mod(index, self.sizes[i])]])
+            for i, a in enumerate(self.arrays)
+        ]
+
+    def propose_shuffle(self, seed: int) -> List[np.ndarray]:
+        rs = get_rs(seed)
+        return [rs.permutation(view_idx) for view_idx in self.view_idx]
+
+    def accept_shuffle(self, shuffled: List[np.ndarray]) -> None:
+        self.shuffle_idx = shuffled
+
+    def random_split(
+            self, fractions: List[float], random_state = None
+    ) -> List["ArrayDataset"]:
+        if min(fractions) <= 0:
+            raise ValueError("Fractions should be greater than 0!")
+        if sum(fractions) != 1:
+            raise ValueError("Fractions do not sum to 1!")
+        rs = get_rs(random_state)
+        cum_frac = np.cumsum(fractions)
+        subdatasets = [
+            ArrayDataset(
+                *self.arrays, getitem_size=self.getitem_size
+            ) for _ in fractions
+        ]
+        for j, view_idx in enumerate(self.view_idx):
+            view_idx = rs.permutation(view_idx)
+            split_pos = np.round(cum_frac * view_idx.size).astype(int)
+            split_idx = np.split(view_idx, split_pos[:-1])  # Last pos produces an extra empty split
+            for i, idx in enumerate(split_idx):
+                subdatasets[i].sizes[j] = len(idx)
+                subdatasets[i].view_idx[j] = idx
+                subdatasets[i].shuffle_idx[j] = idx
+        return subdatasets
+
 class AnnDataset(Dataset):
     def __init__(
             self, adatas: List[AnnData], data_configs: List[Mapping[str, Any]],

@@ -19,7 +19,7 @@ import os
 
 from trainer import Trainer,DataLoader
 from utils import config, get_chained_attr, autodevice
-from dataset import AnnDataset
+from dataset import AnnDataset,ArrayDataset
 
 EPS = 1e-7
 AUTO = -1
@@ -361,22 +361,30 @@ class MyModel(torch.nn.Module):
             source_key: str = None,
             batch_size: int = 128
     ) -> np.ndarray:
-        n_sample = adata.shape[0]
-        l = np.array([1.] * n_sample).reshape((-1, 1))
-        b = np.zeros(n_sample, dtype=int)
         net = self.net
         device = net.device
         net.eval()
         if source_key is None:
-            u = torch.Tensor(adata).to(device)
+            z = torch.Tensor(adata)
         else:
-            u = self.encode_data(source_key, adata, batch_size=batch_size)
-        v = self.encode_graph()
-        v = torch.as_tensor(v, device=device)
-        v = v[getattr(net, f"{target_key}_idx")]
-        decoder = net.u2x[target_key]
-        result = decoder(u, v, b, l).mean.detach().cpu().numpy()
-        return result
+            z = self.encode_data(source_key, adata, batch_size=batch_size)
+        u = self.encode_feature()
+        u = torch.as_tensor(u, device=device)
+        u = u[getattr(net, f"{target_key}_idx")]
+        data = ArrayDataset(z,getitem_size=128)
+        data_loader = DataLoader(
+            data, batch_size=1, shuffle=False,
+            num_workers=config.DATALOADER_NUM_WORKERS,
+            pin_memory=config.DATALOADER_PIN_MEMORY and not config.CPU_ONLY, drop_last=False,
+            persistent_workers=False
+        )
+        decoder = net.z2x[target_key]
+
+        result = []
+        for z_ in data_loader:
+            z_ = z_.to(device, non_blocking=True)
+            result.append(decoder(z_, u).mean.detach().cpu())
+        return torch.cat(result).numpy()
 
     def save(self, fname: os.PathLike) -> None:
         fname = pathlib.Path(fname)
