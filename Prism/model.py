@@ -334,7 +334,7 @@ class MyModel(torch.nn.Module):
             self, key: str, adata, batch_size: int = 128
     ) -> np.ndarray:
         self.net.eval()
-        encoder = self.net.x2u[key]
+        encoder = self.net.x2z[key]
         data = AnnDataset(
             [adata], [self.domains[key]],
             mode="eval", getitem_size=batch_size
@@ -350,7 +350,7 @@ class MyModel(torch.nn.Module):
             u = encoder(
                 x.to(self.net.device, non_blocking=True),
                 xalt.to(self.net.device, non_blocking=True)
-            )[0]
+            )
             result.append(u.mean.detach().cpu())
         return torch.cat(result).numpy()
 
@@ -382,7 +382,7 @@ class MyModel(torch.nn.Module):
 
         result = []
         for z_ in data_loader:
-            z_ = z_.to(device, non_blocking=True)
+            z_ = z_[0].to(device, non_blocking=True)
             result.append(decoder(z_, u).mean.detach().cpu())
         return torch.cat(result).numpy()
 

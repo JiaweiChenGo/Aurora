@@ -82,7 +82,7 @@ modalityA_h5ad.obsm["X_latent"] = prism_model.encode_data("modality_A", modality
 #generate all modality data
 modality = prism_model.net.x2z.keys()
 for modality_ in modality:
-    modalityA_h5ad.obsm["X_"+modality_] = glue.decode_data("modality_A",modality_, modalityA_h5ad)
+    modalityA_h5ad.obsm["X_"+modality_] = glue.decode_data(modality_, modalityA_h5ad,"modality_A")
 ```
 
 ### Cite PRISM:
