@@ -9,7 +9,7 @@ except ModuleNotFoundError:
     version = lambda name: get_distribution(name).version
 
 
-name = "Prism"
+name = "Aurora"
 __version__ = version(name)
 
 from model import load_model

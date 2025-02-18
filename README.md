@@ -1,10 +1,10 @@
-# AURORA: 
+# AURORA: AI Unification and Reconstruction of Omics Reassembly Atlas
 
 ![Workflow](./framework.png)
 
 ## Package: `AURORA`
 
-We created the python package called `PRISM` that uses `scanpy` ans `torch` to integrate and generate individual multi-modality data from any modality data.
+We created the python package called `AURORA` that uses `scanpy` ans `torch` to integrate and generate individual multi-modality data from any modality data.
 
 ### Requirements
 
@@ -15,13 +15,13 @@ We created the python package called `PRISM` that uses `scanpy` ans `torch` to i
 ### Create environment
 
 ```
-conda create -n PRISM python
-conda activate PRISM
+conda create -n AURORA python
+conda activate AURORA
 ```
 
 ### Installation
 
-The `PRISM` python package is in the folder PRISM. You can simply install it from the root of this repository using
+The `AURORA` python package is in the folder AURORA. You can simply install it from the root of this repository using
 
 ```
 pip install .
@@ -30,12 +30,12 @@ pip install .
 Alternatively, you can also install the package directly from GitHub via
 
 ```
-pip install git+https://github.com/JackieHanLab/Prism.git
+pip install git+https://github.com/JackieHanLab/Aurora.git
 ```
 
 ### Environment has been tested
 
-`PRISM.yaml`
+`AURORA.yaml`
 
 ## Usage
 
@@ -43,7 +43,7 @@ pip install git+https://github.com/JackieHanLab/Prism.git
 
 ```py
 modalityA_h5ad.layers['counts'] = modalityA_h5ad.X
-PRISM.configure_dataset(modalityA_h5ad, use_uid = <sample_ID>,use_labels = <Age_label>)
+AURORA.configure_dataset(modalityA_h5ad, use_uid = <sample_ID>,use_labels = <Age_label>)
 ```
 
 #### Input:
@@ -55,7 +55,7 @@ PRISM.configure_dataset(modalityA_h5ad, use_uid = <sample_ID>,use_labels = <Age_
 ### Step 2: Train the model
 
 ```py
-prism_model = PRISM.fit_model(
+aurora_model = AURORA.fit_model(
     adatas = {"modality_A": modalityA_h5ad, 
               "modality_B": modalityB_h5ad,
               ...
@@ -63,7 +63,7 @@ prism_model = PRISM.fit_model(
     features = <features>,
     project_name = <project_name>
 )
-prism_model.save("my_model.dill")
+aurora_model.save("my_model.dill")
 ```
 
 #### Input:
@@ -76,15 +76,15 @@ prism_model.save("my_model.dill")
 
 ```py
 #load model
-prism_model = load_model("my_model.dill")
+aurora_model = load_model("my_model.dill")
 #get sample embeddings from modality A
-modalityA_h5ad.obsm["X_latent"] = prism_model.encode_data("modality_A", modalityA_h5ad)
+modalityA_h5ad.obsm["X_latent"] = aurora_model.encode_data("modality_A", modalityA_h5ad)
 #generate all modality data
-modality = prism_model.net.x2z.keys()
+modality =aurora_model.net.x2z.keys()
 for modality_ in modality:
-    modalityA_h5ad.obsm["X_"+modality_] = glue.decode_data(modality_, modalityA_h5ad,"modality_A")
+    modalityA_h5ad.obsm["X_"+modality_] = aurora_model.decode_data(modality_, modalityA_h5ad,"modality_A")
 ```
 
-### Cite PRISM:
+### Cite AURORA:
 
 []
