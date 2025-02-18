@@ -1,8 +1,8 @@
-# PRISM: Personalized Reconstruction with Interactive Signature and Modalities
+# AURORA: 
 
 ![Workflow](./framework.png)
 
-## Package: `PRISM`
+## Package: `AURORA`
 
 We created the python package called `PRISM` that uses `scanpy` ans `torch` to integrate and generate individual multi-modality data from any modality data.
 
