@@ -17,7 +17,7 @@ import tempfile
 from dataset import Dataset
 from abc import abstractmethod
 
-from utils import config, logged
+from .utils import config, logged
 
 EPOCH_STARTED = ignite.engine.Events.EPOCH_STARTED
 EPOCH_COMPLETED = ignite.engine.Events.EPOCH_COMPLETED

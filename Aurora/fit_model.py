@@ -10,8 +10,8 @@ from sparse import COO
 import scipy.sparse
 from sklearn.preprocessing import normalize
 
-from utils import config, logged,prod
-from model import MyModel
+from .utils import config, logged,prod
+from .model import MyModel
 
 def aggregate_obs(
         adata: AnnData, 

@@ -17,9 +17,9 @@ import dill
 from abc import abstractmethod
 import os
 
-from trainer import Trainer,DataLoader
-from utils import config, get_chained_attr, autodevice
-from dataset import AnnDataset,ArrayDataset
+from .trainer import Trainer,DataLoader
+from .utils import config, get_chained_attr, autodevice
+from .dataset import AnnDataset,ArrayDataset
 
 EPS = 1e-7
 AUTO = -1

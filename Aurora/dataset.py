@@ -18,7 +18,7 @@ import copy
 import scipy.sparse
 
 
-from utils import config,get_rs,get_default_numpy_dtype
+from .utils import config,get_rs,get_default_numpy_dtype
 
 processes: Mapping[int, Mapping[int, Process]] = defaultdict(dict)
 
