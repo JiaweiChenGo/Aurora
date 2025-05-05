@@ -14,9 +14,9 @@ import pathlib
 import shutil
 import parse
 import tempfile
-from dataset import Dataset
 from abc import abstractmethod
 
+from .dataset import Dataset
 from .utils import config, logged
 
 EPOCH_STARTED = ignite.engine.Events.EPOCH_STARTED
