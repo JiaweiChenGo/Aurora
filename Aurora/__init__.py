@@ -1,5 +1,7 @@
 r"""
-
+Modified from:
+  GLUE: https://github.com/gao-lab/GLUE;
+  TOSICA: https://github.com/JackieHanLab/TOSICA
 """
 
 try:
